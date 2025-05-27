@@ -1,0 +1,8 @@
+@import "tailwindcss";
+@plugin "daisyui";
+body,
+#root,
+.App{
+  width: 100%;
+  height: auto;
+}
