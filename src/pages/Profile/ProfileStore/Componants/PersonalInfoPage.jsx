@@ -50,7 +50,7 @@ export default function PersonalInfoPage() {
             <thead>
               <tr>
                 <th>اسم المتجر</th>
-                <th>نوع النشاط</th>
+                <th>القسم</th>
                 <th>العنوان</th>
                 <th>شعار المتجر</th>
               </tr>
@@ -58,7 +58,7 @@ export default function PersonalInfoPage() {
             <tbody>
               <tr className="hover:bg-base-200">
                 <td>{user.store_name}</td>
-                <td>{user.business_type}</td>
+                <td>{user.store_categories.name}</td>
                 <td>{user.address}</td>
                 <td>
                   <img

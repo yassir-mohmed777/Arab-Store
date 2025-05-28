@@ -20,9 +20,14 @@ export default function StoreProfileLayout() {
 
       const { data, error } = await supabase
         .from("users")
-        .select("*")
-        .eq("id", userId)
-        .single();
+  .select(`
+    *,
+    store_categories (
+      name
+    )
+  `)
+  .eq("id", userId)
+  .single();
 
       if (!error) setUserData(data);
     };

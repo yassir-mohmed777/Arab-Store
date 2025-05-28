@@ -1,7 +1,7 @@
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import * as Yup from "yup";
 import StoreFields from "../Componant/StoreFields";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../../../supabaseClient";
 import { toast } from "react-toastify";
 import { useState } from "react";
@@ -20,31 +20,44 @@ const validationSchema = Yup.object({
     .required("كلمة المرور مطلوبة")
     .matches(
       passwordRegex,
-      "يجب أن تحتوي كلمة المرور على 8 أحرف على الأقل، وتشمل حرفًا صغيرًا، وحرفًا كبيرًا، ورقمًا، ورمزًا خاصًا."
+      "يجب أن تحتوي كلمة المرور على 6 أحرف على الأقل،."
     ),
   confirmPassword: Yup.string()
     .oneOf([Yup.ref("password")], "كلمتا المرور غير متطابقتين")
     .required("تأكيد كلمة المرور مطلوب"),
   address: Yup.string().required("العنوان مطلوب"),
   userType: Yup.string().required("نوع المستخدم مطلوب"),
-  businessType: Yup.string().when("userType", {
-    is: "store",
-    then: (schema) => schema.required("نوع النشاط مطلوب"),
-    otherwise: (schema) => schema.notRequired(),
-  }),
+storeCategory: Yup.string().when("userType", {
+  is: "store",
+  then: (schema) => schema.required("القسم مطلوب"),
+  otherwise: (schema) => schema.notRequired(),
+}),
   storeName: Yup.string().when("userType", {
     is: "store",
-    then: (schema) => schema.required("نوع النشاط مطلوب"),
+    then: (schema) => schema.required("اسم المتجر مطلوب"),
     otherwise: (schema) => schema.notRequired(),
   }),
   storeLogo: Yup.mixed().when("userType", {
-    is: "store",
-    then: (schema) => schema.required("شعار المتجر مطلوب"),
-    otherwise: (schema) => schema.notRequired(),
-  }),
+  is: "store",
+  then: (schema) =>
+    schema
+      .required("شعار المتجر مطلوب")
+      .test(
+        "fileType",
+        "يجب أن يكون الملف صورة (png, jpg, jpeg)",
+        (value) => {
+          if (!value) return false; // مطلوب
+          const allowedTypes = ["image/png", "image/jpg", "image/jpeg"];
+          return allowedTypes.includes(value.type);
+        }
+      ),
+  otherwise: (schema) => schema.notRequired(),
+}),
+
 });
 
 export default function RegisterPage() {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const hundleSubmit = async (values, { setSubmitting }) => {
     setLoading(true);
@@ -88,7 +101,7 @@ export default function RegisterPage() {
         address: values.address,
         user_type: values.userType,
         store_name: values.storeName,
-        business_type: values.businessType || null,
+        store_category_id: values.storeCategory,
         store_logo_url,
       });
 
@@ -124,7 +137,7 @@ export default function RegisterPage() {
             confirmPassword: "",
             userType: "client",
             address: "",
-            businessType: "",
+            storeCategory: "",
             storeName: "",
             storeLogo: null,
           }}

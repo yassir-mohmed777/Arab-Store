@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { useOutletContext } from "react-router-dom";
 import { supabase } from "../../../../supabaseClient";
@@ -10,22 +10,32 @@ export default function StoreInfoModal({ onClose }) {
   const [loading, setLoading] = useState(false);
 
   const nameRef = useRef();
-  const typeRef = useRef();
+  const storeCatRef = useRef();
   const phoneRef = useRef();
   const addressRef = useRef();
   const logoRef = useRef();
+
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const { data, error } = await supabase.from("store_categories").select();
+      if (!error) setCategories(data);
+    };
+    fetchCategories();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     const store_name = nameRef.current.value;
-    const business_type = typeRef.current.value;
+    const Store_Cat = storeCatRef.current.value;
     const phone = phoneRef.current.value;
     const address = addressRef.current.value;
     const logoFile = logoRef.current.files[0];
 
-    if (!store_name || !business_type || !phone || !address) {
+    if (!store_name || !Store_Cat || !phone || !address) {
       toast.error("يرجى تعبئة جميع الحقول");
       setLoading(false);
       return;
@@ -55,10 +65,10 @@ export default function StoreInfoModal({ onClose }) {
       .from("users")
       .update({
         store_name,
-        business_type,
         phone,
         address,
         store_logo_url,
+        store_category_id: Store_Cat,
       })
       .eq("id", user.id);
 
@@ -72,13 +82,17 @@ export default function StoreInfoModal({ onClose }) {
     setLoading(false);
   };
 
-  const handleLogoPreview = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImageFile(file);
-      setImagePreview(URL.createObjectURL(file));
-    }
-  };
+const handleLogoPreview = (e) => {
+  const file = e.target.files[0];
+
+  const validTypes = ["image/jpeg", "image/png", "image/webp"];
+
+  if (file && validTypes.includes(file.type)) {
+    setLogoPreview(URL.createObjectURL(file));
+  } else {
+    toast.error("الرجاء اختيار صورة بصيغة jpg أو png أو webp");
+  }
+};
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50 px-4">
@@ -104,12 +118,19 @@ export default function StoreInfoModal({ onClose }) {
             />
           </div>
           <div>
-            <label className="block mb-1 font-medium">نوع النشاط</label>
-            <input
-              ref={typeRef}
-              defaultValue={user.business_type}
+            <label className="block mb-1 font-medium">القسم</label>
+            <select
+              ref={storeCatRef}
+              defaultValue={user.store_category_id}
               className="border border-gray-300 rounded-lg p-2 w-full"
-            />
+            >
+              <option value="">اختر قسماً</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="block mb-1 font-medium">رقم الهاتف</label>
@@ -131,7 +152,8 @@ export default function StoreInfoModal({ onClose }) {
             <label className="block mb-1 font-medium">شعار المتجر</label>
             <input
               type="file"
-              accept="image/*"
+              ref={logoRef}
+              accept="image/png, image/jpeg, image/webp"
               onChange={handleLogoPreview}
               className="w-full border border-gray-300 rounded-lg p-2 file:mr-2 file:py-1 file:px-3 file:border-0 file:bg-blue-600 file:text-white file:rounded"
             />
@@ -159,8 +181,6 @@ export default function StoreInfoModal({ onClose }) {
             </button>
           </div>
         </form>
-
-
       </div>
     </div>
   );
