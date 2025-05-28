@@ -22,7 +22,7 @@ const fakeOrders = [
     items: [{ name: "منتج 3", quantity: 4, price: 50 }],
   },
   {
-    id: "ORD002",
+    id: "ORD003",
     customer: "سارة محمد",
     date: "2025-05-24",
     total: 200,
@@ -30,7 +30,7 @@ const fakeOrders = [
     items: [{ name: "منتج 3", quantity: 4, price: 50 }],
   },
   {
-    id: "ORD002",
+    id: "ORD004",
     customer: "سارة محمد",
     date: "2025-05-24",
     total: 200,
@@ -38,7 +38,7 @@ const fakeOrders = [
     items: [{ name: "منتج 3", quantity: 4, price: 50 }],
   },
   {
-    id: "ORD002",
+    id: "ORD005",
     customer: "سارة محمد",
     date: "2025-05-24",
     total: 200,
@@ -46,7 +46,7 @@ const fakeOrders = [
     items: [{ name: "منتج 3", quantity: 4, price: 50 }],
   },
   {
-    id: "ORD002",
+    id: "ORD006",
     customer: "سارة محمد",
     date: "2025-05-24",
     total: 200,
@@ -54,7 +54,7 @@ const fakeOrders = [
     items: [{ name: "منتج 3", quantity: 4, price: 50 }],
   },
   {
-    id: "ORD002",
+    id: "ORD007",
     customer: "سارة محمد",
     date: "2025-05-24",
     total: 200,
@@ -62,7 +62,7 @@ const fakeOrders = [
     items: [{ name: "منتج 3", quantity: 4, price: 50 }],
   },
   {
-    id: "ORD002",
+    id: "ORD008",
     customer: "سارة محمد",
     date: "2025-05-24",
     total: 200,
@@ -70,7 +70,7 @@ const fakeOrders = [
     items: [{ name: "منتج 3", quantity: 4, price: 50 }],
   },
   {
-    id: "ORD002",
+    id: "ORD009",
     customer: "سارة محمد",
     date: "2025-05-24",
     total: 200,
@@ -78,7 +78,7 @@ const fakeOrders = [
     items: [{ name: "منتج 3", quantity: 4, price: 50 }],
   },
   {
-    id: "ORD002",
+    id: "ORD010",
     customer: "سارة محمد",
     date: "2025-05-24",
     total: 200,
@@ -86,7 +86,7 @@ const fakeOrders = [
     items: [{ name: "منتج 3", quantity: 4, price: 50 }],
   },
   {
-    id: "ORD002",
+    id: "ORD011",
     customer: "سارة محمد",
     date: "2025-05-24",
     total: 200,
@@ -94,7 +94,7 @@ const fakeOrders = [
     items: [{ name: "منتج 3", quantity: 4, price: 50 }],
   },
   {
-    id: "ORD002",
+    id: "ORD0234",
     customer: "سارة محمد",
     date: "2025-05-24",
     total: 200,
@@ -102,7 +102,7 @@ const fakeOrders = [
     items: [{ name: "منتج 3", quantity: 4, price: 50 }],
   },
   {
-    id: "ORD002",
+    id: "ORD0056",
     customer: "سارة محمد",
     date: "2025-05-24",
     total: 200,
@@ -110,7 +110,7 @@ const fakeOrders = [
     items: [{ name: "منتج 3", quantity: 4, price: 50 }],
   },
   {
-    id: "ORD002",
+    id: "ORD087",
     customer: "سارة محمد",
     date: "2025-05-24",
     total: 200,

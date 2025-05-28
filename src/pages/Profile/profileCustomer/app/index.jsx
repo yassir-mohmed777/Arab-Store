@@ -57,7 +57,7 @@ export default function ProfilecustomerPage() {
       counntry: null,
     },
     {
-      id: 10,
+      id: 80,
       documentId: "laf5gr6t1ycv35sivmwd2407",
       createdAt: "2025-04-27T01:26:46.915Z",
       updatedAt: "2025-04-27T01:26:46.915Z",
@@ -72,7 +72,7 @@ export default function ProfilecustomerPage() {
       counntry: null,
     },
     {
-      id: 10,
+      id: 190,
       documentId: "laf5gr6t1ycv35sivmwd2407",
       createdAt: "2025-04-27T01:26:46.915Z",
       updatedAt: "2025-04-27T01:26:46.915Z",
@@ -152,20 +152,26 @@ export default function ProfilecustomerPage() {
     <div className="container mx-auto min-h-[calc(100vh-90px)] bg-white  rounded">
       {/* Main Content */}
       <div className="flex-1 p-6">
-        <div>
           <h2 className="text-2xl font-bold mb-2">معلومات الحساب</h2>
-          <p>
-            <strong>الاسم الكامل:</strong> {userData.full_name}
-          </p>
-          <p>
-            <strong>البريد الإلكتروني:</strong> {userData.email}
-          </p>
-          <p>
-            <strong>رقم الهاتف:</strong> {userData.phone}
-          </p>
-          <p>
-            <strong>العنوان:</strong> {userData.address}
-          </p>
+        <div className="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
+          <table className="table">
+            <thead>
+              <tr>
+                <th>الاسم بالكامل</th>
+                <th>البريد الالكتروني</th>
+                <th>رقم الهاتف</th>
+                <th>العنوان</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{userData.full_name}</td>
+                <td>{userData.email}</td>
+                <td>{userData.phone}</td>
+                <td>{userData.address}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
         <div className="pt-7">

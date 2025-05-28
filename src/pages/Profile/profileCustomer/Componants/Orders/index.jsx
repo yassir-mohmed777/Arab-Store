@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { FcOk } from "react-icons/fc";
 import { Link } from "react-router-dom";
+import OrderModal from "../../Modal/OrderModal";
 export default function Orders({ userOrder }) {
-  const [showAll, setShowAll] = useState(false);
-  const visibleOrders = showAll ? userOrder : userOrder.slice(0, 2);
+  const [selectedOrder, setSelectedOrder] = useState(null);
   return (
     <div>
       {userOrder.length === 0 ? (
@@ -15,7 +15,7 @@ export default function Orders({ userOrder }) {
           </Link>
         </div>
       ) : (
-        <div className="list-group">
+        <div className="overflow-auto rounded-box border border-base-content/5 bg-base-100 h-[400px]">
           <table className="table ">
             <thead>
               <tr>
@@ -28,8 +28,12 @@ export default function Orders({ userOrder }) {
               </tr>
             </thead>
             <tbody>
-              {visibleOrders.map((order, index) => (
-                <tr className="cursor-pointer" key={order.id}>
+              {userOrder.map((order, index) => (
+                <tr
+                  className="cursor-pointer"
+                  key={index}
+                  onClick={() => setSelectedOrder(order)}
+                >
                   <td>{index + 1}</td>
                   <td>{order.order_code}</td>
                   <td>
@@ -54,18 +58,13 @@ export default function Orders({ userOrder }) {
               ))}
             </tbody>
           </table>
-          {userOrder.length > 2 && (
-            <div className="text-center mt-4">
-              <button
-                className="btn btn-dark"
-                onClick={() => setShowAll(!showAll)}
-              >
-                {showAll ? "عرض أقل" : "عرض المزيد"}
-              </button>
-            </div>
-          )}
         </div>
       )}
+      <OrderModal
+        isOpen={!!selectedOrder}
+        order={selectedOrder}
+        onClose={() => setSelectedOrder(null)}
+      />
     </div>
   );
 }
