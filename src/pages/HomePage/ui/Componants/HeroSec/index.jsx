@@ -62,7 +62,7 @@ export default function HeroSec() {
   return (
     <div className="w-full">
       <div className="w-full relative flex items-center justify-center">
-        <img src={hero} className="h-[300px]  w-full" />
+        <img src={hero} className="w-full object-cover" />
         <div className="absolute">
           {/* {loading ? (
             <span>بيحمل الان</span>

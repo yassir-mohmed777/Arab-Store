@@ -10,7 +10,7 @@ export default function OfferCard({ name, price, image, originalPrice ,storeName
         />
       </div>
 
-      <h4 className="font-semibold text-lg text-gray-800 truncate mb-1">{name}</h4>
+      <h4 className="font-semibold  text-sm md:text-lg text-gray-800 truncate mb-1">{name}</h4>
 
       <div className="flex items-center gap-2">
         <p className="text-black text-lg font-bold">{price}CAD</p>
@@ -21,7 +21,7 @@ export default function OfferCard({ name, price, image, originalPrice ,storeName
       </div>
       {originalPrice && price && originalPrice > price && (
     <div className=" bg-green-100 text-green-800 text-xs font-bold px-3 py-1 rounded border border-green-500 shadow-sm whitespace-nowrap">
-      خصم {(originalPrice - price).toLocaleString()} جنيه
+      خصم {(originalPrice - price).toLocaleString()}CAD
     </div>
   )}
     </div>
