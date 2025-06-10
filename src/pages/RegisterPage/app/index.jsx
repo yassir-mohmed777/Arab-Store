@@ -135,7 +135,7 @@ export default function RegisterPage() {
             email: "",
             password: "",
             confirmPassword: "",
-            userType: "client",
+            userType: "customer",
             address: "",
             storeCategory: "",
             storeName: "",
@@ -242,7 +242,7 @@ export default function RegisterPage() {
                 name="userType"
                 className="input w-1/3 border p-2 rounded"
               >
-                <option value="client">عميل</option>
+                <option value="customer">عميل</option>
                 <option value="store">متجر</option>
               </Field>
               <ErrorMessage

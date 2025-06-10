@@ -1,128 +1,52 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ProductModal from "../Modal/ProductModal";
+import { supabase } from "../../../../supabaseClient";
+import useAuth from "../../../../zustand-store/auth/authStore";
 
 export default function ProductsManagement() {
-  const [products, setProducts] = useState([
-    {
-      id: 1,
-      name: "منتج 1",
-      price: 100,
-      description: "وصف المنتج",
-      imageUrl: "https://via.placeholder.com/100",
-    },
-    {
-      id: 2,
-      name: "منتج 2",
-      price: 150,
-      description: "وصف آخر",
-      imageUrl: "https://via.placeholder.com/100",
-    },
-    {
-      id: 3,
-      name: "منتج 2",
-      price: 150,
-      description: "وصف آخر",
-      imageUrl: "https://via.placeholder.com/100",
-    },
-    {
-      id: 6,
-      name: "منتج 2",
-      price: 150,
-      description: "وصف آخر",
-      imageUrl: "https://via.placeholder.com/100",
-    },
-    {
-      id: 7,
-      name: "منتج 2",
-      price: 150,
-      description: "وصف آخر",
-      imageUrl: "https://via.placeholder.com/100",
-    },
-    {
-      id: 8,
-      name: "منتج 2",
-      price: 150,
-      description: "وصف آخر",
-      imageUrl: "https://via.placeholder.com/100",
-    },
-    {
-      id: 33,
-      name: "منتج 2",
-      price: 150,
-      description: "وصف آخر",
-      imageUrl: "https://via.placeholder.com/100",
-    },
-    {
-      id: 76,
-      name: "منتج 2",
-      price: 150,
-      description: "وصف آخر",
-      imageUrl: "https://via.placeholder.com/100",
-    },
-    {
-      id:34,
-      name: "منتج 2",
-      price: 150,
-      description: "وصف آخر",
-      imageUrl: "https://via.placeholder.com/100",
-    },
-    {
-      id: 97,
-      name: "منتج 2",
-      price: 150,
-      description: "وصف آخر",
-      imageUrl: "https://via.placeholder.com/100",
-    },
-    {
-      id: 435,
-      name: "منتج 2",
-      price: 150,
-      description: "وصف آخر",
-      imageUrl: "https://via.placeholder.com/100",
-    },
-    {
-      id: 4356,
-      name: "منتج 2",
-      price: 150,
-      description: "وصف آخر",
-      imageUrl: "https://via.placeholder.com/100",
-    },
-    {
-      id: 54,
-      name: "منتج 2",
-      price: 150,
-      description: "وصف آخر",
-      imageUrl: "https://via.placeholder.com/100",
-    },
-    {
-      id: 45,
-      name: "منتج 2",
-      price: 150,
-      description: "وصف آخر",
-      imageUrl: "https://via.placeholder.com/100",
-    },
-    {
-      id: 23,
-      name: "منتج 2",
-      price: 150,
-      description: "وصف آخر",
-      imageUrl: "https://via.placeholder.com/100",
-    },
-  ]);
-
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState("add"); // or "edit"
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const { user } = useAuth();
+
+  const storeId = user.id;
+  console.log(user)
+  const fetchProducts = async () => {
+    setLoading(true);
+
+    if (!storeId) {
+      console.error("لا يوجد معرف متجر مخزن.");
+      setLoading(false);
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .eq("store_id", storeId);
+
+    if (!error) {
+      setProducts(data);
+      console.log(data);
+    } else {
+      console.error("فشل في جلب المنتجات:", error.message);
+    }
+
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   const openAddModal = () => {
-    setModalMode("add");
-    setSelectedProduct(null);
+    setSelectedProduct(null); // هذا يعني "وضع الإضافة"
     setModalOpen(true);
   };
 
   const openEditModal = (product) => {
-    setModalMode("edit");
-    setSelectedProduct(product);
+    setSelectedProduct(product); // هذا يعني "وضع التعديل"
     setModalOpen(true);
   };
 
@@ -130,31 +54,47 @@ export default function ProductsManagement() {
     setModalOpen(false);
   };
 
-  const handleSubmit = (productData) => {
-    if (modalMode === "add") {
-      const newProduct = {
-        id: Date.now(), // وهمي
+  const handleSubmit = async (productData) => {
+    if (!selectedProduct) {
+      const { error } = await supabase.from("products").insert({
         ...productData,
-      };
-      setProducts([...products, newProduct]);
+        store_id: storeId,
+      });
+      if (error) {
+        console.error("خطأ أثناء الإضافة:", error.message);
+        return;
+      }
     } else {
-      const updatedProducts = products.map((p) =>
-        p.id === selectedProduct.id ? { ...p, ...productData } : p
-      );
-      setProducts(updatedProducts);
+      const { error } = await supabase
+        .from("products")
+        .update(productData)
+        .eq("id", selectedProduct.id);
+      if (error) {
+        console.error("خطأ أثناء التعديل:", error.message);
+        return;
+      }
     }
 
+    fetchProducts(); // إعادة جلب البيانات من القاعدة
     closeModal();
   };
 
-  const handleDelete = (productId) => {
+  const handleDelete = async (productId) => {
     const confirmDelete = window.confirm(
       "هل أنت متأكد أنك تريد حذف هذا المنتج؟"
     );
-    if (confirmDelete) {
-      const updatedProducts = products.filter((p) => p.id !== productId);
-      setProducts(updatedProducts);
+    if (!confirmDelete) return;
+
+    const { error } = await supabase
+      .from("products")
+      .delete()
+      .eq("id", productId);
+    if (error) {
+      console.error("خطأ أثناء الحذف:", error.message);
+      return;
     }
+
+    fetchProducts(); // إعادة التحديث
   };
 
   return (
@@ -176,40 +116,60 @@ export default function ProductsManagement() {
               <th>الصورة</th>
               <th>الاسم</th>
               <th>السعر</th>
+              <th>المخزون</th>
               <th>الإجراءات</th>
             </tr>
           </thead>
           <tbody>
-            {products.map((product, idx) => (
-              <tr key={product.id} className="hover:bg-base-200">
-                <td>{idx + 1}</td>
-                <td>
-                  <img
-                    src={product.imageUrl}
-                    alt=""
-                    className="w-16 h-16 object-cover"
-                  />
-                </td>
-                <td>{product.name}</td>
-                <td>{product.price}CAD</td>
-                <td className="p-2">
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => openEditModal(product)}
-                      className="bg-blue-500 text-white px-3 py-1 rounded cursor-pointer"
-                    >
-                      تعديل
-                    </button>
-                    <button
-                      onClick={() => handleDelete(product.id)}
-                      className="bg-red-600 text-white px-3 py-1 rounded cursor-pointer"
-                    >
-                      حذف
-                    </button>
-                  </div>
+            {loading ? (
+              <tr>
+                <td colSpan="6" className="text-center py-10 h-full">
+                  جاري تحميل المنتجات...
                 </td>
               </tr>
-            ))}
+            ) : (
+              <>
+                {products.map((product, idx) => (
+                  <tr key={product.id} className="hover:bg-base-200">
+                    <td>{idx + 1}</td>
+                    <td>
+                      <img
+                        src={product.image_url || "/no-image.png"}
+                        alt={product.name}
+                        className="w-16 h-16 object-cover"
+                      />
+                    </td>
+                    <td>{product.name}</td>
+                    <td>{product.price}CAD</td>
+                    <td>{product.stock}</td>
+                    <td className="p-2">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => openEditModal(product)}
+                          className="bg-blue-500 text-white px-3 py-1 rounded cursor-pointer"
+                        >
+                          تعديل
+                        </button>
+                        <button
+                          onClick={() => handleDelete(product.id)}
+                          className="bg-red-600 text-white px-3 py-1 rounded cursor-pointer"
+                        >
+                          حذف
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {/* عرض رسالة في حال لا توجد منتجات */}
+                {products.length === 0 && (
+                  <tr>
+                    <td colSpan="6" className="text-center text-gray-500 py-10">
+                      لا توجد منتجات بعد.
+                    </td>
+                  </tr>
+                )}
+              </>
+            )}
           </tbody>
         </table>
       </div>
@@ -217,7 +177,6 @@ export default function ProductsManagement() {
       <ProductModal
         isOpen={modalOpen}
         onClose={closeModal}
-        mode={modalMode}
         onSubmit={handleSubmit}
         initialData={selectedProduct}
       />

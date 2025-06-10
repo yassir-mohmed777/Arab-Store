@@ -1,27 +1,360 @@
-import { useState, useEffect } from "react";
+// import { useEffect, useRef, useState } from "react";
+// import { supabase } from "../../../../supabaseClient";
+// import { ChromePicker } from "react-color";
 
-export default function ProductModal({ isOpen, onClose, mode, onSubmit, initialData }) {
-  const [name, setName] = useState("");
-  const [price, setPrice] = useState("");
-  const [description, setDescription] = useState("");
-  const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState("");
+// export default function ProductModal({
+//   isOpen,
+//   onClose,
+//   onSubmit,
+//   initialData,
+// }) {
+//   const nameRef = useRef(null);
+//   const priceRef = useRef(null);
+//   const stockRef = useRef(null);
+//   const descriptionRef = useRef(null);
+//   const imageInputRef = useRef(null);
+
+//   const [imageFile, setImageFile] = useState(null);
+//   const [imagePreview, setImagePreview] = useState("");
+//   const [uploading, setUploading] = useState(false);
+
+//   const [colors, setColors] = useState([]);
+//   const [newColor, setNewColor] = useState("#000000");
+
+//   const [sizes, setSizes] = useState([]);
+//   const [newSize, setNewSize] = useState("");
+
+//   useEffect(() => {
+//     if (!isOpen) return;
+
+//     if (initialData) {
+//       if (nameRef.current) nameRef.current.value = initialData.name || "";
+//       if (priceRef.current) priceRef.current.value = initialData.price || "";
+//       if (stockRef.current) stockRef.current.value = initialData.stock || "";
+//       if (descriptionRef.current)
+//         descriptionRef.current.value = initialData.description || "";
+
+//       setImagePreview(initialData.image_url || "");
+//       setImageFile(null);
+
+//       setColors(initialData.colors || []);
+//       setSizes(initialData.sizes || []);
+//     } else {
+//       if (nameRef.current) nameRef.current.value = "";
+//       if (priceRef.current) priceRef.current.value = "";
+//       if (stockRef.current) stockRef.current.value = "";
+//       if (descriptionRef.current) descriptionRef.current.value = "";
+//       if (imageInputRef.current) imageInputRef.current.value = null;
+
+//       setImagePreview("");
+//       setImageFile(null);
+//       setColors([]);
+//       setSizes([]);
+//     }
+//   }, [initialData, isOpen]);
+
+//   const handleImageChange = (e) => {
+//     const file = e.target.files[0];
+//     if (file) {
+//       setImageFile(file);
+//       setImagePreview(URL.createObjectURL(file));
+//     }
+//   };
+
+//   const handleAddColor = () => {
+//     if (!colors.includes(newColor)) {
+//       setColors([...colors, newColor]);
+//     }
+//   };
+
+//   const handleRemoveColor = (colorToRemove) => {
+//     setColors(colors.filter((color) => color !== colorToRemove));
+//   };
+
+//   const handleAddSize = () => {
+//   const entries = newSize.split(",").map((s) => s.trim()).filter(Boolean);
+
+//   const uniqueNewSizes = entries.filter((s) => !sizes.includes(s));
+
+//   if (uniqueNewSizes.length > 0) {
+//     setSizes([...sizes, ...uniqueNewSizes]);
+//     setNewSize("");
+//   }
+// };
+
+//   const handleRemoveSize = (sizeToRemove) => {
+//     setSizes(sizes.filter((size) => size !== sizeToRemove));
+//   };
+
+//   const uploadImageToSupabase = async () => {
+//     if (!imageFile) return imagePreview;
+
+//     const fileExt = imageFile.name.split(".").pop();
+//     const fileName = `${Date.now()}.${fileExt}`;
+//     const filePath = `products/${fileName}`;
+
+//     const { error } = await supabase.storage
+//       .from("products-images")
+//       .upload(filePath, imageFile);
+
+//     if (error) {
+//       console.error("خطأ أثناء رفع الصورة:", error.message);
+//       return null;
+//     }
+
+//     const { data } = supabase.storage
+//       .from("products-images")
+//       .getPublicUrl(filePath);
+
+//     return data.publicUrl;
+//   };
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     setUploading(true);
+
+//     const image_url = await uploadImageToSupabase();
+//     if (!image_url) {
+//       alert("حدث خطأ أثناء رفع الصورة");
+//       setUploading(false);
+//       return;
+//     }
+
+//     const productData = {
+//       name: nameRef.current?.value || "",
+//       price: priceRef.current?.value || "",
+//       stock: stockRef.current?.value || "",
+//       description: descriptionRef.current?.value || "",
+//       image_url,
+//       colors,
+//       sizes,
+//     };
+
+//     await onSubmit(productData);
+//     setUploading(false);
+//   };
+
+//   if (!isOpen) return null;
+
+//   return (
+//     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50 px-4 overflow-auto">
+//       <div className="bg-white rounded-2xl shadow-xl px-6 py-3 w-full max-w-lg relative overflow-auto">
+//         <button
+//           onClick={onClose}
+//           className="absolute top-3 left-3 text-gray-500 hover:text-red-600 text-2xl font-bold"
+//         >
+//           &times;
+//         </button>
+
+//         <h2 className="text-2xl font-semibold text-center mb-2">
+//           {initialData ? "تعديل المنتج" : "إضافة منتج جديد"}
+//         </h2>
+
+//         <form onSubmit={handleSubmit} className="space-y-4">
+//           {/* الاسم والسعر والمخزون */}
+
+//           <div className="flex gap-5">
+//             <div>
+//               <label className="block mb-1 font-medium">اسم المنتج</label>
+//               <input
+//                 ref={nameRef}
+//                 className="border border-gray-300 rounded-lg p-2 w-full"
+//                 required
+//               />
+//             </div>
+
+//             <div>
+//               <label className="block mb-1 font-medium">السعر</label>
+//               <input
+//                 type="number"
+//                 ref={priceRef}
+//                 className="border border-gray-300 rounded-lg p-2 w-full"
+//                 required
+//               />
+//             </div>
+
+//             <div>
+//               <label className="block mb-1 font-medium">المخزون</label>
+//               <input
+//                 type="number"
+//                 ref={stockRef}
+//                 className="border border-gray-300 rounded-lg p-2 w-full"
+//                 required
+//               />
+//             </div>
+//           </div>
+
+//           {/* الوصف */}
+//           <div>
+//             <label className="block mb-1 font-medium">الوصف</label>
+//             <textarea
+//               ref={descriptionRef}
+//               className="border border-gray-300 rounded-lg p-2 w-full resize-none h-24"
+//             />
+//           </div>
+
+//           {/* الصورة */}
+//           <div>
+//             <div className="flex justify-between">
+//               <div className="flex flex-col">
+//                 <label className="mb-1 font-medium">صورة المنتج</label>
+
+//                 <input
+//                   ref={imageInputRef}
+//                   type="file"
+//                   accept="image/*"
+//                   onChange={handleImageChange}
+//                   className="h-8 w-12 border border-gray-300 rounded-lg p-2"
+//                 />
+//                 {imagePreview && (
+//                   <img
+//                     src={imagePreview}
+//                     alt="معاينة"
+//                     className="w-24 h-20 object-cover mt-3 rounded-lg shadow border"
+//                   />
+//                 )}
+//               </div>
+//               <div>
+//                 <label className="block mb-1 font-medium">
+//                   الألوان المتوفرة
+//                 </label>
+//                 <ChromePicker
+//                   color={newColor}
+//                   onChange={(color) => setNewColor(color.hex)}
+//                   disableAlpha
+//                 />
+//                 <button
+//                   type="button"
+//                   onClick={handleAddColor}
+//                   className="mt-2 bg-green-600 text-white py-1 px-4 rounded hover:bg-green-700"
+//                 >
+//                   إضافة اللون
+//                 </button>
+//                 <div className="flex flex-wrap gap-2 mt-3">
+//                   {colors.map((color, idx) => (
+//                     <div
+//                       key={idx}
+//                       className="w-8 h-8 rounded-full border relative cursor-pointer"
+//                       style={{ backgroundColor: color }}
+//                       onClick={() => handleRemoveColor(color)}
+//                       title="اضغط لإزالة اللون"
+//                     >
+//                       <span className="absolute -top-2 -right-2 text-red-600 font-bold">
+//                         ×
+//                       </span>
+//                     </div>
+//                   ))}
+//                 </div>
+//               </div>
+//             </div>
+//           </div>
+
+//           {/* المقاسات */}
+//           <div>
+//             <label className="block mb-1 font-medium">المقاسات المتوفرة</label>
+//             <div className="flex gap-2 mb-2">
+//               <input
+//                 type="text"
+//                 value={newSize}
+//                 onChange={(e) => setNewSize(e.target.value)}
+//                 className="border border-gray-300 rounded-lg p-2 w-full"
+//                  placeholder="اكتب مثلًا: S أو S,M,L"
+//               />
+//               <button
+//                 type="button"
+//                 onClick={handleAddSize}
+//                 className="bg-green-600 text-white px-3 rounded hover:bg-green-700"
+//               >
+//                 إضافة
+//               </button>
+//             </div>
+//             <div className="flex flex-wrap gap-2">
+//               {sizes.map((size, idx) => (
+//                 <span
+//                   key={idx}
+//                   onClick={() => handleRemoveSize(size)}
+//                   className="bg-gray-200 px-3 py-1 rounded-full cursor-pointer hover:bg-red-200"
+//                   title="اضغط لإزالة"
+//                 >
+//                   {size}
+//                 </span>
+//               ))}
+//             </div>
+//           </div>
+
+//           {/* زر الحفظ */}
+//           <button
+//             type="submit"
+//             disabled={uploading}
+//             className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50"
+//           >
+//             {uploading
+//               ? "جارٍ الحفظ..."
+//               : initialData
+//               ? "تحديث المنتج"
+//               : "إضافة المنتج"}
+//           </button>
+//         </form>
+//       </div>
+//     </div>
+//   );
+// }
+
+import { useEffect, useRef, useState } from "react";
+import { ChromePicker } from "react-color";
+import { useProductForm } from "../hooks/useProductForm";
+
+export default function ProductModal({
+  isOpen,
+  onClose,
+  onSubmit,
+  initialData,
+}) {
+  const nameRef = useRef(null);
+  const priceRef = useRef(null);
+  const stockRef = useRef(null);
+  const descriptionRef = useRef(null);
+  const imageInputRef = useRef(null);
+
+  const [uploading, setUploading] = useState(false);
+
+  const {
+    imageFile,
+    setImageFile,
+    imagePreview,
+    setImagePreview,
+    colors,
+    newColor,
+    setNewColor,
+    sizes,
+    newSize,
+    setNewSize,
+    uploadImageToSupabase,
+    handleAddColor,
+    handleRemoveColor,
+    handleAddSize,
+    handleRemoveSize,
+  } = useProductForm(initialData, isOpen);
 
   useEffect(() => {
-    if (mode === "edit" && initialData) {
-      setName(initialData.name || "");
-      setPrice(initialData.price || "");
-      setDescription(initialData.description || "");
-      setImagePreview(initialData.imageUrl || "");
-      setImageFile(null); // نفرض إنه ما في صورة مرفوعة جديدة لسه
+    if (!isOpen) return;
+
+    if (initialData) {
+      if (nameRef.current) nameRef.current.value = initialData.name || "";
+      if (priceRef.current) priceRef.current.value = initialData.price || "";
+      if (stockRef.current) stockRef.current.value = initialData.stock || "";
+      if (descriptionRef.current)
+        descriptionRef.current.value = initialData.description || "";
+
+      if (imageInputRef.current) imageInputRef.current.value = null;
     } else {
-      setName("");
-      setPrice("");
-      setDescription("");
-      setImageFile(null);
-      setImagePreview("");
+      if (nameRef.current) nameRef.current.value = "";
+      if (priceRef.current) priceRef.current.value = "";
+      if (stockRef.current) stockRef.current.value = "";
+      if (descriptionRef.current) descriptionRef.current.value = "";
+      if (imageInputRef.current) imageInputRef.current.value = null;
     }
-  }, [mode, initialData]);
+  }, [initialData, isOpen]);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -31,24 +364,36 @@ export default function ProductModal({ isOpen, onClose, mode, onSubmit, initialD
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // نحفظ الصورة كـ URL فقط مؤقتًا (يمكن لاحقًا ترفعها لـ Supabase أو سيرفر)
+    setUploading(true);
+
+    const image_url = await uploadImageToSupabase();
+    if (!image_url) {
+      alert("حدث خطأ أثناء رفع الصورة");
+      setUploading(false);
+      return;
+    }
+
     const productData = {
-      name,
-      price,
-      description,
-      imageUrl: imageFile ? imagePreview : imagePreview,
+      name: nameRef.current?.value || "",
+      price: priceRef.current?.value || "",
+      stock: stockRef.current?.value || "",
+      description: descriptionRef.current?.value || "",
+      image_url,
+      colors,
+      sizes,
     };
-    onSubmit(productData);
+
+    await onSubmit(productData);
+    setUploading(false);
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50 px-4">
-      <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-lg relative">
-        {/* زر الإغلاق */}
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50 px-4 overflow-auto">
+      <div className="bg-white rounded-2xl shadow-xl px-6 py-3 w-1/2 relative overflow-auto">
         <button
           onClick={onClose}
           className="absolute top-3 left-3 text-gray-500 hover:text-red-600 text-2xl font-bold"
@@ -56,63 +401,158 @@ export default function ProductModal({ isOpen, onClose, mode, onSubmit, initialD
           &times;
         </button>
 
-        <h2 className="text-2xl font-semibold text-center mb-6">
-          {mode === "add" ? "إضافة منتج جديد" : "تعديل المنتج"}
+        <h2 className="text-2xl font-semibold text-center mb-2">
+          {initialData ? "تعديل المنتج" : "إضافة منتج جديد"}
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block mb-1 font-medium">اسم المنتج</label>
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="border border-gray-300 rounded-lg p-2 w-full"
-              required
-            />
+        <form onSubmit={handleSubmit} className="space-y-1">
+          {/* الاسم والسعر والعروض والمخزون */}
+          <div className="grid grid-cols-4 gap-4">
+            <div>
+              <label className="block mb-1 font-medium">اسم المنتج</label>
+              <input
+                ref={nameRef}
+                className="border border-gray-300 rounded-lg p-2 w-full"
+                required
+              />
+            </div>
+            <div>
+              <label className="block mb-1 font-medium">السعر</label>
+              <input
+                type="number"
+                ref={priceRef}
+                className="border border-gray-300 rounded-lg p-2 w-full"
+                required
+              />
+            </div>
+            {/* عرض السعر */}
+            <div>
+              <label className="block mb-1 text-sm">
+                عرض على السعر (اختياري)
+              </label>
+              <input
+                type="number"
+                className="border border-gray-300 rounded-lg p-2 w-full"
+              />
+            </div>
+            <div>
+              <label className="block mb-1 font-medium">المخزون</label>
+              <input
+                type="number"
+                ref={stockRef}
+                className="border border-gray-300 rounded-lg p-2 w-full"
+                required
+              />
+            </div>
           </div>
 
-          <div>
-            <label className="block mb-1 font-medium">السعر</label>
-            <input
-              type="number"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              className="border border-gray-300 rounded-lg p-2 w-full"
-              required
-            />
-          </div>
-
+          {/* الوصف */}
           <div>
             <label className="block mb-1 font-medium">الوصف</label>
             <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              ref={descriptionRef}
               className="border border-gray-300 rounded-lg p-2 w-full resize-none h-24"
             />
           </div>
 
+          {/* المقاسات */}
           <div>
-            <label className="block mb-1 font-medium">صورة المنتج</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="w-full border border-gray-300 rounded-lg p-2 file:mr-2 file:py-1 file:px-3 file:border-0 file:bg-blue-600 file:text-white file:rounded"
-            />
-            {imagePreview && (
-              <img
-                src={imagePreview}
-                alt="معاينة"
-                className="w-24 h-24 object-cover mt-3 rounded-lg shadow border"
+            <label className="block mb-1 font-medium">المقاسات المتوفرة</label>
+            <div className="flex gap-2 mb-2">
+              <input
+                type="text"
+                value={newSize}
+                onChange={(e) => setNewSize(e.target.value)}
+                className="border border-gray-300 rounded-lg p-2 w-full"
+                placeholder="مثال: S أو M,L,XL"
               />
-            )}
+              <button
+                type="button"
+                onClick={handleAddSize}
+                className="bg-green-600 text-white px-3 rounded hover:bg-green-700"
+              >
+                إضافة
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {sizes.map((size, idx) => (
+                <span
+                  key={idx}
+                  onClick={() => handleRemoveSize(size)}
+                  className="bg-gray-200 px-3 py-1 rounded-full cursor-pointer hover:bg-red-200"
+                  title="اضغط لإزالة"
+                >
+                  {size}
+                </span>
+              ))}
+            </div>
           </div>
 
+          {/* الصورة + الألوان */}
+          <div className="grid grid-cols-2 gap-4">
+            {/* الصورة */}
+            <div>
+              <label className="block mb-1 font-medium">صورة المنتج</label>
+              <input
+                ref={imageInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="border border-gray-300 rounded-lg p-2 w-full"
+              />
+              {imagePreview && (
+                <img
+                  src={imagePreview}
+                  alt="معاينة"
+                  className="w-28 h-24 object-cover mt-3 rounded-lg shadow border"
+                />
+              )}
+            </div>
+
+            {/* الألوان */}
+            <div>
+              <label className="block mb-1 font-medium">الألوان المتوفرة</label>
+              <ChromePicker
+                color={newColor}
+                onChange={(color) => setNewColor(color.hex)}
+                disableAlpha
+              />
+              <button
+                type="button"
+                onClick={handleAddColor}
+                className="mt-2 bg-green-600 text-white py-1 px-4 rounded hover:bg-green-700"
+              >
+                إضافة اللون
+              </button>
+              <div className="flex flex-wrap gap-2 mt-3">
+                {colors.map((color, idx) => (
+                  <div
+                    key={idx}
+                    className="w-8 h-8 rounded-full border relative cursor-pointer"
+                    style={{ backgroundColor: color }}
+                    onClick={() => handleRemoveColor(color)}
+                    title="اضغط لإزالة اللون"
+                  >
+                    <span className="absolute -top-2 -right-2 text-red-600 font-bold">
+                      ×
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* زر الحفظ */}
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition"
+            disabled={uploading}
+            className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50"
           >
-            {mode === "add" ? "إضافة المنتج" : "تحديث المنتج"}
+            {uploading
+              ? "جارٍ الحفظ..."
+              : initialData
+              ? "تحديث المنتج"
+              : "إضافة المنتج"}
           </button>
         </form>
       </div>

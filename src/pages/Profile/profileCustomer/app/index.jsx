@@ -1,158 +1,52 @@
-import { useState } from "react";
-import Orders from "../Componants/Orders";
+import { useEffect, useState } from "react";
+import { supabase } from "../../../../supabaseClient";
+import dayjs from "dayjs";
+import "dayjs/locale/ar";
+import CustomerOrders from "../Componants/CustomerOrders";
+import useAuth from "../../../../zustand-store/auth/authStore";
 
-export default function ProfilecustomerPage() {
-  // بيانات وهمية مؤقتة
-  const userData = {
-    full_name: "أحمد محمد",
-    email: "ahmed@example.com",
-    phone: "0123456789",
-    address: "القاهرة، مصر",
-  };
 
-  const orders = [
-    {
-      id: 6,
-      documentId: "wd10pff944ns77b96io87kkv",
-      createdAt: "2025-04-27T01:21:26.046Z",
-      updatedAt: "2025-04-27T01:21:26.046Z",
-      publishedAt: "2025-04-27T01:21:26.058Z",
-      total_price: 790,
-      city: "Cario",
-      order_code: "ORD-143981",
-      address: "almaadi",
-      phone: "+201012345676",
-      order_status: "تم التوصيل",
-      payment_method: "cod",
-      counntry: null,
-    },
-    {
-      id: 8,
-      documentId: "r1nf4jvxvdlbpmyu9rfqbv8h",
-      createdAt: "2025-04-27T01:23:02.830Z",
-      updatedAt: "2025-04-27T01:23:02.830Z",
-      publishedAt: "2025-04-27T01:23:02.840Z",
-      total_price: 790,
-      city: "alexandra",
-      order_code: "ORD-310768",
-      address: "soogalgomaa",
-      phone: "+201012345676",
-      order_status: "تحت التجهيز",
-      payment_method: "cod",
-      counntry: null,
-    },
-    {
-      id: 10,
-      documentId: "laf5gr6t1ycv35sivmwd2407",
-      createdAt: "2025-04-27T01:26:46.915Z",
-      updatedAt: "2025-04-27T01:26:46.915Z",
-      publishedAt: "2025-04-27T01:26:46.928Z",
-      total_price: 790,
-      city: "alexandra",
-      order_code: "ORD-228452",
-      address: "soogalgomaa",
-      phone: "+201012345676",
-      order_status: "pending",
-      payment_method: "cod",
-      counntry: null,
-    },
-    {
-      id: 80,
-      documentId: "laf5gr6t1ycv35sivmwd2407",
-      createdAt: "2025-04-27T01:26:46.915Z",
-      updatedAt: "2025-04-27T01:26:46.915Z",
-      publishedAt: "2025-04-27T01:26:46.928Z",
-      total_price: 790,
-      city: "alexandra",
-      order_code: "ORD-228452",
-      address: "soogalgomaa",
-      phone: "+201012345676",
-      order_status: "pending",
-      payment_method: "cod",
-      counntry: null,
-    },
-    {
-      id: 190,
-      documentId: "laf5gr6t1ycv35sivmwd2407",
-      createdAt: "2025-04-27T01:26:46.915Z",
-      updatedAt: "2025-04-27T01:26:46.915Z",
-      publishedAt: "2025-04-27T01:26:46.928Z",
-      total_price: 790,
-      city: "alexandra",
-      order_code: "ORD-228452",
-      address: "soogalgomaa",
-      phone: "+201012345676",
-      order_status: "pending",
-      payment_method: "cod",
-      counntry: null,
-    },
-    {
-      id: 10,
-      documentId: "laf5gr6t1ycv35sivmwd2407",
-      createdAt: "2025-04-27T01:26:46.915Z",
-      updatedAt: "2025-04-27T01:26:46.915Z",
-      publishedAt: "2025-04-27T01:26:46.928Z",
-      total_price: 790,
-      city: "alexandra",
-      order_code: "ORD-228452",
-      address: "soogalgomaa",
-      phone: "+201012345676",
-      order_status: "pending",
-      payment_method: "cod",
-      counntry: null,
-    },
-    {
-      id: 10,
-      documentId: "laf5gr6t1ycv35sivmwd2407",
-      createdAt: "2025-04-27T01:26:46.915Z",
-      updatedAt: "2025-04-27T01:26:46.915Z",
-      publishedAt: "2025-04-27T01:26:46.928Z",
-      total_price: 790,
-      city: "alexandra",
-      order_code: "ORD-228452",
-      address: "soogalgomaa",
-      phone: "+201012345676",
-      order_status: "pending",
-      payment_method: "cod",
-      counntry: null,
-    },
-    {
-      id: 10,
-      documentId: "laf5gr6t1ycv35sivmwd2407",
-      createdAt: "2025-04-27T01:26:46.915Z",
-      updatedAt: "2025-04-27T01:26:46.915Z",
-      publishedAt: "2025-04-27T01:26:46.928Z",
-      total_price: 790,
-      city: "alexandra",
-      order_code: "ORD-228452",
-      address: "soogalgomaa",
-      phone: "+201012345676",
-      order_status: "pending",
-      payment_method: "cod",
-      counntry: null,
-    },
-    {
-      id: 10,
-      documentId: "laf5gr6t1ycv35sivmwd2407",
-      createdAt: "2025-04-27T01:26:46.915Z",
-      updatedAt: "2025-04-27T01:26:46.915Z",
-      publishedAt: "2025-04-27T01:26:46.928Z",
-      total_price: 790,
-      city: "alexandra",
-      order_code: "ORD-228452",
-      address: "soogalgomaa",
-      phone: "+201012345676",
-      order_status: "pending",
-      payment_method: "cod",
-      counntry: null,
-    },
-  ];
+dayjs.locale("ar");
+
+export default function ProfileCustomerPage() {
+  const user = useAuth((state) => state.user); 
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user?.id) {
+      setLoading(false);
+      return;
+    }
+
+    const fetchOrders = async () => {
+      setLoading(true);
+
+      const { data: ordersData, error: ordersError } = await supabase
+        .from("orders")
+        .select("*")
+        .eq("customer_id", user.id)
+        .order("created_at", { ascending: false });
+      if (ordersError) {
+        console.error("خطأ في جلب الطلبات:", ordersError);
+      } else {
+        setOrders(ordersData);
+      }
+
+      setLoading(false);
+    };
+
+    fetchOrders();
+  }, [user?.id]);
+
+  if (loading) return <div className="p-6">جاري تحميل البيانات...</div>;
+
+  if (!user) return <div className="p-6">لم يتم تسجيل الدخول.</div>;
 
   return (
-    <div className="container mx-auto min-h-[calc(100vh-90px)] bg-white  rounded">
-      {/* Main Content */}
+    <div className="container mx-auto min-h-[calc(100vh-90px)] bg-white rounded">
       <div className="flex-1 p-6">
-          <h2 className="text-2xl font-bold mb-2">معلومات الحساب</h2>
+        <h2 className="text-2xl font-bold mb-2">معلومات الحساب</h2>
         <div className="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
           <table className="table">
             <thead>
@@ -165,10 +59,10 @@ export default function ProfilecustomerPage() {
             </thead>
             <tbody>
               <tr>
-                <td>{userData.full_name}</td>
-                <td>{userData.email}</td>
-                <td>{userData.phone}</td>
-                <td>{userData.address}</td>
+                <td>{user.full_name}</td>
+                <td>{user.email}</td>
+                <td>{user.phone}</td>
+                <td>{user.address}</td>
               </tr>
             </tbody>
           </table>
@@ -176,8 +70,7 @@ export default function ProfilecustomerPage() {
 
         <div className="pt-7">
           <h2 className="text-2xl font-bold mb-2">طلباتي</h2>
-
-          <Orders userOrder={orders} />
+          <CustomerOrders userOrder={orders} />
         </div>
       </div>
     </div>

@@ -5,11 +5,14 @@ import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../../../supabaseClient";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import useAuth from "../../../zustand-store/auth/authStore";
+
 
 const LoginPage = () => {
-  const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const {setUser} = useAuth();
+
   const validationSchema = Yup.object({
     email: Yup.string()
       .email("البريد الإلكتروني غير صالح")
@@ -20,6 +23,7 @@ const LoginPage = () => {
   const handleLogin = async (values) => {
     setLoading(true);
     const { email, password } = values;
+
     const { error, data } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -34,29 +38,36 @@ const LoginPage = () => {
       } else {
         toast.error("فشل تسجيل الدخول: " + error.message);
       }
+      setLoading(false);
+      return;
+    }
+
+    // جلب بيانات المستخدم من جدول users حسب id
+  const { data: userProfile, error: profileError } = await supabase
+    .from("users")
+    .select(`
+      *,
+      store_categories (
+        name
+      )
+    `)
+    .eq("id", data.user.id)
+    .single();
+
+    if (profileError) {
+      toast.error("حدث خطأ في جلب بيانات المستخدم");
+      setLoading(false);
+      return;
+    }
+
+    // تخزين بيانات المستخدم في Zustand
+    setUser(userProfile);
+
+    // التوجيه حسب نوع المستخدم
+    if (userProfile.user_type === "store") {
+      navigate("/profile/store");
     } else {
-      // جلب بيانات المستخدم الكامل (profile) لكي تعرف نوع المستخدم
-      const { data: userProfile, error: profileError } = await supabase
-        .from("users")
-        .select("user_type")
-        .eq("id", data.user.id)
-        .single();
-
-      if (profileError) {
-        toast.error("حدث خطأ في جلب بيانات المستخدم");
-        setLoading(false);
-        return;
-      }
-
-      if (userProfile.user_type === "store") {
-        sessionStorage.setItem("userInfo", JSON.stringify(userProfile)); // تخزين نوع المستخدم
-        sessionStorage.setItem("userId", data.user.id); // تخزين ID المستخدم
-        navigate("/profile/store");
-      } else {
-        sessionStorage.setItem("userInfo", JSON.stringify(userProfile));
-        sessionStorage.setItem("userId", data.user.id);
-        navigate("/profile/customer");
-      }
+      navigate("/profile/customer");
     }
 
     setLoading(false);
@@ -66,7 +77,7 @@ const LoginPage = () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: window.location.origin + "/",
+        redirectTo: "http://localhost:5173",
       },
     });
     if (error) toast.error("فشل تسجيل الدخول عبر Google: " + error.message);
@@ -121,22 +132,6 @@ const LoginPage = () => {
               />
             </div>
 
-            <div className="flex items-center">
-              <input
-                id="rememberMe"
-                type="checkbox"
-                checked={rememberMe}
-                onChange={() => setRememberMe(!rememberMe)}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label
-                htmlFor="rememberMe"
-                className="mr-2 block text-sm text-gray-600"
-              >
-                تذكرني
-              </label>
-            </div>
-
             <button
               type="submit"
               className="btn btn-primary flex justify-center items-center gap-2"
@@ -160,10 +155,7 @@ const LoginPage = () => {
         </div>
 
         <div className="text-center mt-4">
-          <Link
-            to="/register"
-            className="text-sm text-gray-500 hover:underline"
-          >
+          <Link to="/register" className="text-sm text-gray-500 hover:underline">
             مستخدم جديد؟ أنشئ حسابك الآن
           </Link>
         </div>

@@ -1,41 +1,13 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { supabase } from "../../../../../supabaseClient";
 import SidebarDrawer from "../Modal/PhoneMenu";
+import useAuth from "../../../../../zustand-store/auth/authStore";
 
 export default function StoreProfileLayout() {
-  const [userData, setUserData] = useState(null);
+  const { user, isLoading } = useAuth();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const { data: session } = await supabase.auth.getSession();
-      const userId = session?.session?.user?.id;
-
-      if (!userId) {
-        navigate("/login");
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from("users")
-  .select(`
-    *,
-    store_categories (
-      name
-    )
-  `)
-  .eq("id", userId)
-  .single();
-
-      if (!error) setUserData(data);
-    };
-
-    fetchUserData();
-  }, []);
-
-  if (!userData) return <div className="p-4">جار تحميل البيانات...</div>;
+  if (isLoading) return <div className="p-4">جار تحميل البيانات...</div>;
 
   return (
     <div className="flex flex-col md:flex-row min-h-[calc(100vh-90px)] bg-gray-100 relative">
@@ -69,7 +41,7 @@ export default function StoreProfileLayout() {
             إدارة الطلبات
           </NavLink>
           <NavLink
-            to="settings"
+            to="products"
             className={({ isActive }) =>
               isActive ? "text-blue-600 font-bold" : ""
             }
@@ -81,11 +53,14 @@ export default function StoreProfileLayout() {
 
       {/* محتوى الصفحة */}
       <main className="flex-1 p-4">
-        <Outlet context={{ user: userData }} />
+        <Outlet context={{ user }} />
       </main>
 
       {/* مودال Drawer للجوال */}
-      <SidebarDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
+      <SidebarDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+      />
     </div>
   );
 }

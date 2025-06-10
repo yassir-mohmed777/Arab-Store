@@ -1,8 +1,10 @@
+import dayjs from "dayjs";
 import { useState } from "react";
 import { FcOk } from "react-icons/fc";
 import { Link } from "react-router-dom";
 import OrderModal from "../../Modal/OrderModal";
-export default function Orders({ userOrder }) {
+
+export default function CustomerOrders({ userOrder }) {
   const [selectedOrder, setSelectedOrder] = useState(null);
   return (
     <div>
@@ -38,16 +40,24 @@ export default function Orders({ userOrder }) {
                   <td>{order.order_code}</td>
                   <td>
                     <span
-                      className={`${
+                      className={`px-2 py-1 rounded text-white text-xs ${
                         order.order_status === "تحت التجهيز"
-                          ? "bg-warning"
-                          : "bg-success"
+                          ? "bg-yellow-500"
+                          : order.order_status === "تم التوصيل"
+                          ? "bg-green-600"
+                          : order.order_status === "ملغي"
+                          ? "bg-red-500"
+                          : "bg-gray-500"
                       }`}
                     >
-                      {order.order_status.toUpperCase()}
+                      {order.order_status}
                     </span>
                   </td>
-                  <td>{new Date(order.createdAt).toLocaleDateString()}</td>
+                  <td>
+                    {dayjs(order.created_at)
+                      .add(2, "hour")
+                      .format("YYYY/MM/DD - hh:mm A")}
+                  </td>
                   <td>
                     {order.payment_method == "cod"
                       ? "عند الاستلام"
