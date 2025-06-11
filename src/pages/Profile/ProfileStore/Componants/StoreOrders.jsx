@@ -95,8 +95,16 @@ export default function StoreOrders() {
                 <td>{order.order_status}</td>
               </tr>
             ))}
+              {orders.length === 0 && (
+                  <tr>
+                    <td colSpan="5" className="text-center text-gray-500 py-10">
+                      لا توجد 'طلبات' بعد.
+                    </td>
+                  </tr>
+                )}
           </tbody>
         </table>
+         
       </div>
       <OrderModal
         isOpen={!!selectedOrder}

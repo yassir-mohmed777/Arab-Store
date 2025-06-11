@@ -118,7 +118,7 @@ fetchUser: async () => {
     .from("users")
     .select("*")
     .eq("id", userId)
-    .single();
+    .maybeSingle();
 
   if (fetchError && fetchError.code !== 'PGRST116') { // مثلا خطأ غير "لم يتم العثور"
     console.error("Error fetching user:", fetchError);

@@ -18,50 +18,48 @@ const validationSchema = Yup.object({
   email: Yup.string().email("بريد إلكتروني غير صالح").required("الايميل مطلوب"),
   password: Yup.string()
     .required("كلمة المرور مطلوبة")
-    .matches(
-      passwordRegex,
-      "يجب أن تحتوي كلمة المرور على 6 أحرف على الأقل،."
-    ),
+    .matches(passwordRegex, "يجب أن تحتوي كلمة المرور على 6 أحرف على الأقل،."),
   confirmPassword: Yup.string()
     .oneOf([Yup.ref("password")], "كلمتا المرور غير متطابقتين")
     .required("تأكيد كلمة المرور مطلوب"),
   address: Yup.string().required("العنوان مطلوب"),
   userType: Yup.string().required("نوع المستخدم مطلوب"),
-storeCategory: Yup.string().when("userType", {
-  is: "store",
-  then: (schema) => schema.required("القسم مطلوب"),
-  otherwise: (schema) => schema.notRequired(),
-}),
+  storeCategory: Yup.string().when("userType", {
+    is: "store",
+    then: (schema) => schema.required("القسم مطلوب"),
+    otherwise: (schema) => schema.notRequired(),
+  }),
   storeName: Yup.string().when("userType", {
     is: "store",
     then: (schema) => schema.required("اسم المتجر مطلوب"),
     otherwise: (schema) => schema.notRequired(),
   }),
   storeLogo: Yup.mixed().when("userType", {
-  is: "store",
-  then: (schema) =>
-    schema
-      .required("شعار المتجر مطلوب")
-      .test(
-        "fileType",
-        "يجب أن يكون الملف صورة (png, jpg, jpeg)",
-        (value) => {
-          if (!value) return false; // مطلوب
-          const allowedTypes = ["image/png", "image/jpg", "image/jpeg"];
-          return allowedTypes.includes(value.type);
-        }
-      ),
-  otherwise: (schema) => schema.notRequired(),
-}),
-
+    is: "store",
+    then: (schema) =>
+      schema
+        .required("شعار المتجر مطلوب")
+        .test(
+          "fileType",
+          "يجب أن يكون الملف صورة (png, jpg, jpeg)",
+          (value) => {
+            if (!value) return false; // مطلوب
+            const allowedTypes = ["image/png", "image/jpg", "image/jpeg"];
+            return allowedTypes.includes(value.type);
+          }
+        ),
+    otherwise: (schema) => schema.notRequired(),
+  }),
 });
 
 export default function RegisterPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+
   const hundleSubmit = async (values, { setSubmitting }) => {
     setLoading(true);
     toast.info("جاري إنشاء الحساب، الرجاء الانتظار...");
+    
     try {
       // 1. تسجيل المستخدم بالبريد وكلمة المرور
       const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -93,16 +91,16 @@ export default function RegisterPage() {
       }
 
       // 3. تخزين البيانات في جدول users
-      const { error: insertError } = await supabase.from("users").insert({
+      const { error: insertError } = await supabase.from("users").upsert({
         id: userId,
         full_name: values.fullName,
         email: values.email,
         phone: values.phone,
         address: values.address,
         user_type: values.userType,
-        store_name: values.storeName,
-        store_category_id: values.storeCategory,
-        store_logo_url,
+        store_name: values.userType === "store" ? values.storeName : null,
+        store_category_id: values.userType === "store" ? values.storeCategory : null,
+        store_logo_url : values.userType === "store" ? store_logo_url : null,
       });
 
       if (insertError) throw insertError;

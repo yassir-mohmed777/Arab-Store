@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../../../supabaseClient";
-
+import imageCompression from "browser-image-compression";
 export function useProductForm(initialData, isOpen) {
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(initialData?.image_url || "");
@@ -26,28 +26,66 @@ export function useProductForm(initialData, isOpen) {
   }, [initialData, isOpen]);
 
   // رفع الصورة إلى Supabase
-  const uploadImageToSupabase = async () => {
-    if (!imageFile) return imagePreview;
+  // const uploadImageToSupabase = async () => {
+  //   if (!imageFile) return imagePreview;
 
-    const fileExt = imageFile.name.split(".").pop();
+  //   const fileExt = imageFile.name.split(".").pop();
+  //   const fileName = `${Date.now()}.${fileExt}`;
+  //   const filePath = `products/${fileName}`;
+
+  //   const { error } = await supabase.storage
+  //     .from("products-images")
+  //     .upload(filePath, imageFile);
+
+  //   if (error) {
+  //     console.error("خطأ أثناء رفع الصورة:", error.message);
+  //     return null;
+  //   }
+
+  //   const { data } = supabase.storage
+  //     .from("products-images")
+  //     .getPublicUrl(filePath);
+
+  //   return data.publicUrl;
+  // };
+
+  const uploadImageToSupabase = async () => {
+  // لو لم يغيّر المستخدم الصورة
+  if (!imageFile) return imagePreview;
+
+  try {
+    // 1. ضغط الصورة قبل الرفع
+    const options = { maxSizeMB: 1, maxWidthOrHeight: 1024 };
+    const compressedFile = await imageCompression(imageFile, options);
+
+    // 2. إنشاء اسم فريد ومسار التخزين
+    const fileExt = compressedFile.name.split(".").pop();
     const fileName = `${Date.now()}.${fileExt}`;
     const filePath = `products/${fileName}`;
 
-    const { error } = await supabase.storage
+    // 3. رفع الملف المضغوط
+    const { error: uploadError } = await supabase
+      .storage
       .from("products-images")
-      .upload(filePath, imageFile);
-
-    if (error) {
-      console.error("خطأ أثناء رفع الصورة:", error.message);
+      .upload(filePath, compressedFile, { cacheControl: "3600" });
+    if (uploadError) {
+      console.error("خطأ أثناء رفع الصورة:", uploadError.message);
       return null;
     }
 
-    const { data } = supabase.storage
+    // 4. توليد الرابط العام محليًا (بدون انتظار شبكة إضافي)
+    const { data: { publicUrl } } = supabase
+      .storage
       .from("products-images")
       .getPublicUrl(filePath);
 
-    return data.publicUrl;
-  };
+    return publicUrl;
+  } catch (err) {
+    console.error("خطأ في الضغط أو الرفع:", err);
+    return null;
+  }
+};
+
 
   // دوال ألوان
   const handleAddColor = () => {

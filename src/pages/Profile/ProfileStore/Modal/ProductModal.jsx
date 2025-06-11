@@ -315,7 +315,7 @@ export default function ProductModal({
   const stockRef = useRef(null);
   const descriptionRef = useRef(null);
   const imageInputRef = useRef(null);
-
+  const discountRef = useRef(null);
   const [uploading, setUploading] = useState(false);
 
   const {
@@ -340,14 +340,16 @@ export default function ProductModal({
     if (!isOpen) return;
 
     if (initialData) {
+      if (discountRef.current)
+        discountRef.current.value = initialData.discounted_price || "";
       if (nameRef.current) nameRef.current.value = initialData.name || "";
       if (priceRef.current) priceRef.current.value = initialData.price || "";
       if (stockRef.current) stockRef.current.value = initialData.stock || "";
       if (descriptionRef.current)
         descriptionRef.current.value = initialData.description || "";
-
       if (imageInputRef.current) imageInputRef.current.value = null;
     } else {
+      if (discountRef.current) discountRef.current.value = "";
       if (nameRef.current) nameRef.current.value = "";
       if (priceRef.current) priceRef.current.value = "";
       if (stockRef.current) stockRef.current.value = "";
@@ -375,15 +377,19 @@ export default function ProductModal({
       return;
     }
 
+    const raw = discountRef.current?.value ?? "";
+    const discounted_price = raw !== "" ? parseFloat(raw) : null;
+
     const productData = {
-      name: nameRef.current?.value || "",
-      price: priceRef.current?.value || "",
-      stock: stockRef.current?.value || "",
-      description: descriptionRef.current?.value || "",
-      image_url,
-      colors,
-      sizes,
-    };
+    name: nameRef.current.value,
+    price: parseFloat(priceRef.current.value) || 0,
+    stock: parseInt(stockRef.current.value, 10) || 0,
+    description: descriptionRef.current.value,
+    image_url,
+    colors,
+    sizes,
+    discounted_price,
+  };
 
     await onSubmit(productData);
     setUploading(false);
@@ -432,6 +438,7 @@ export default function ProductModal({
               </label>
               <input
                 type="number"
+                ref={discountRef}
                 className="border border-gray-300 rounded-lg p-2 w-full"
               />
             </div>
