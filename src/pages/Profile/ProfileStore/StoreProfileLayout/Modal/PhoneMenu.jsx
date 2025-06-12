@@ -36,7 +36,7 @@ export default function SidebarDrawer({ isOpen, onClose }) {
             إدارة الطلبات
           </NavLink>
           <NavLink
-            to="settings"
+            to="products"
             className={({ isActive }) =>
               isActive ? "text-blue-600 font-bold" : ""
             }
